@@ -1,14 +1,16 @@
 package com.jsp.prc.serviceImpl;
 
+import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.jsp.prc.entity.Admin;
 import com.jsp.prc.entity.Employee;
+import com.jsp.prc.entity.Project;
+import com.jsp.prc.exception.EmployeeNotFound;
 import com.jsp.prc.repository.AdminRepository;
 import com.jsp.prc.repository.EmployeeReposiroty;
+import com.jsp.prc.repository.ProjectRepository;
 import com.jsp.prc.service.AdminService;
 
 @Service
@@ -19,6 +21,9 @@ public class AdminServiceImpl implements AdminService {
 	
 	@Autowired
 	private EmployeeReposiroty employeeReposiroty;
+	
+	@Autowired
+	private ProjectRepository projectRepository;
 
 	@Override
 	public String login(String aemail, String apassword) {
@@ -45,7 +50,7 @@ public class AdminServiceImpl implements AdminService {
 			employee.setEid(eid);
 			return employeeReposiroty.save(employee);
 		}
-		return null;
+		throw new EmployeeNotFound("Employee Not Found with ");
 	}
 
 	@Override
@@ -55,7 +60,35 @@ public class AdminServiceImpl implements AdminService {
 			 employeeReposiroty.deleteById(eid);
 			 return true;
 		 }
-		 return false;
+			throw new EmployeeNotFound("Employee Not Found with ");
+	}
+
+	@Override
+	public Employee findEmpById(String eid) {
+		 Optional<Employee> optional = employeeReposiroty.findById(eid);
+		 if(optional != null) {
+			 return optional.get();
+		 }
+		 return null;
+	}
+
+	@Override
+	public List<Employee> findAllEmp() {
+		return employeeReposiroty.findAll();
+	}
+
+	@Override
+	public Project findProjectById(String pid) {
+		Optional<Project> optional = projectRepository.findById(pid);
+		if(optional.isPresent()) {
+			return optional.get();
+		}
+		return null;
+	}
+
+	@Override
+	public List<Project> findAllProject() {
+		return projectRepository.findAll();
 	}
 
 }
